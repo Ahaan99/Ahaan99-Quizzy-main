@@ -1,0 +1,369 @@
+{
+  "info": {
+    "name": "Quizzy API",
+    "_postman_id": "quizzy-api-collection",
+    "description": "Complete API collection for Quizzy MERN application. Set the `token` variable after login.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:4000/api/v1", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "quiz_id", "value": "", "type": "string" },
+    { "key": "question_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/register", "host": ["{{base_url}}"], "path": ["register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"testuser@example.com\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"role\": \"user\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/register", "host": ["{{base_url}}"], "path": ["register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"adminuser\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\",\n  \"confirmPassword\": \"admin123\",\n  \"role\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.token) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  console.log('Token saved:', res.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login - Invalid Credentials",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"wrong@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login - Missing Fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quizzes (Admin)",
+      "item": [
+        {
+          "name": "Create Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('quiz_id', res.data._id);",
+                  "  console.log('Quiz ID saved:', res.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/quizzes", "host": ["{{base_url}}"], "path": ["quizzes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"JavaScript Basics\",\n  \"description\": \"Test your JavaScript knowledge\",\n  \"timer\": 10\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Quiz - Missing Fields",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/quizzes", "host": ["{{base_url}}"], "path": ["quizzes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Incomplete Quiz\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Quiz",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/quizzes/{{quiz_id}}", "host": ["{{base_url}}"], "path": ["quizzes", "{{quiz_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"JavaScript Basics - Updated\",\n  \"description\": \"Updated description\",\n  \"timer\": 15\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Quiz",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/quizzes/{{quiz_id}}", "host": ["{{base_url}}"], "path": ["quizzes", "{{quiz_id}}"] }
+          }
+        },
+        {
+          "name": "Get Admin Quizzes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin-quizzes", "host": ["{{base_url}}"], "path": ["admin-quizzes"] }
+          }
+        },
+        {
+          "name": "Get Quiz Attempts (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/attempts/{{quiz_id}}", "host": ["{{base_url}}"], "path": ["attempts", "{{quiz_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questions (Admin)",
+      "item": [
+        {
+          "name": "Create Question",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('question_id', res.data._id);",
+                  "  console.log('Question ID saved:', res.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/questions", "host": ["{{base_url}}"], "path": ["questions"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"{{quiz_id}}\",\n  \"questionText\": \"What is the output of typeof null in JavaScript?\",\n  \"options\": [\n    { \"text\": \"null\", \"isCorrect\": false },\n    { \"text\": \"object\", \"isCorrect\": true },\n    { \"text\": \"undefined\", \"isCorrect\": false },\n    { \"text\": \"string\", \"isCorrect\": false }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Question - No Correct Option",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/questions", "host": ["{{base_url}}"], "path": ["questions"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"{{quiz_id}}\",\n  \"questionText\": \"Bad question with no correct answer\",\n  \"options\": [\n    { \"text\": \"Option A\", \"isCorrect\": false },\n    { \"text\": \"Option B\", \"isCorrect\": false }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Question - Only 1 Option",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/questions", "host": ["{{base_url}}"], "path": ["questions"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"{{quiz_id}}\",\n  \"questionText\": \"Question with one option\",\n  \"options\": [\n    { \"text\": \"Only option\", \"isCorrect\": true }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/questions/{{question_id}}", "host": ["{{base_url}}"], "path": ["questions", "{{question_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionText\": \"What does typeof null return in JavaScript?\",\n  \"options\": [\n    { \"text\": \"null\", \"isCorrect\": false },\n    { \"text\": \"object\", \"isCorrect\": true },\n    { \"text\": \"undefined\", \"isCorrect\": false },\n    { \"text\": \"number\", \"isCorrect\": false }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/questions/{{question_id}}", "host": ["{{base_url}}"], "path": ["questions", "{{question_id}}"] }
+          }
+        },
+        {
+          "name": "Get Quiz Questions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/questions/{{quiz_id}}", "host": ["{{base_url}}"], "path": ["questions", "{{quiz_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quizzes (User)",
+      "item": [
+        {
+          "name": "Get All Quizzes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/quizzes", "host": ["{{base_url}}"], "path": ["quizzes"] }
+          }
+        },
+        {
+          "name": "Get Quiz By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/quizzes/{{quiz_id}}", "host": ["{{base_url}}"], "path": ["quizzes", "{{quiz_id}}"] }
+          }
+        },
+        {
+          "name": "Attempt Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/quizzes/{{quiz_id}}/attempt", "host": ["{{base_url}}"], "path": ["quizzes", "{{quiz_id}}", "attempt"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"{{quiz_id}}\",\n  \"answers\": [\n    {\n      \"questionId\": \"REPLACE_WITH_QUESTION_ID\",\n      \"selectedOption\": \"REPLACE_WITH_OPTION_ID\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Attempt Quiz - Duplicate (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/quizzes/{{quiz_id}}/attempt", "host": ["{{base_url}}"], "path": ["quizzes", "{{quiz_id}}", "attempt"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"{{quiz_id}}\",\n  \"answers\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "Get User Attempts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/attempts", "host": ["{{base_url}}"], "path": ["attempts"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth Validation Tests",
+      "item": [
+        {
+          "name": "No Token (should 401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/quizzes", "host": ["{{base_url}}"], "path": ["quizzes"] }
+          }
+        },
+        {
+          "name": "Invalid Token (should 401)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer invalidtoken123" }],
+            "url": { "raw": "{{base_url}}/quizzes", "host": ["{{base_url}}"], "path": ["quizzes"] }
+          }
+        },
+        {
+          "name": "User accessing Admin route (should 403)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin-quizzes", "host": ["{{base_url}}"], "path": ["admin-quizzes"] }
+          }
+        }
+      ]
+    }
+  ]
+}
